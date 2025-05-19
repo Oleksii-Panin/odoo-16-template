@@ -1,12 +1,12 @@
 services:
   odoo:
-    image: username/odoo_v16:odoo_v16
+    image: scathespirit/odoo_v16:odoo_v16
     restart: unless-stopped
     environment:
       - PGHOST=db
       - PGUSER=odoo
       - PGPASSWORD=odoo
-    container_name: service_web
+    container_name: odoo_16_template_web
     depends_on:
       - db
     links:
@@ -26,13 +26,13 @@ services:
         tag: "{{.Name}}"
 
   db:
-    image: username/odoo_v16:pg_v14
+    image: scathespirit/odoo_v16:pg_v14
     restart: unless-stopped
     environment:
       - POSTGRES_DB=postgres
       - POSTGRES_PASSWORD=odoo
       - POSTGRES_USER=odoo
-    container_name: service_db
+    container_name: odoo_16_template_db
     ports:
       - '5432:5432'
     volumes:
