@@ -1,0 +1,53 @@
+services:
+  odoo:
+    image: username/odoo_v16:odoo_v16
+    restart: unless-stopped
+    environment:
+      - PGHOST=db
+      - PGUSER=odoo
+      - PGPASSWORD=odoo
+    container_name: service_web
+    depends_on:
+      - db
+    links:
+      - db
+    ports:
+      - '8069:8069'
+      - '8072:8072'
+    volumes:
+      - ./docker/odoo/odoo.conf:/etc/odoo/odoo.conf
+      - ./docker/odoo/entrypoint.sh:/entrypoint.sh
+      - ./extra_addons:/opt/odoo/extra_addons
+      - ./odoo:/usr/lib/python3/dist-packages/odoo
+      - odoo-web-data:/var/lib/odoo
+    logging:
+      driver: json-file
+      options:
+        tag: "{{.Name}}"
+
+  db:
+    image: username/odoo_v16:pg_v14
+    restart: unless-stopped
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_PASSWORD=odoo
+      - POSTGRES_USER=odoo
+    container_name: service_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./docker/postgres/postgresql.conf:/etc/postgresql/postgresql.conf
+      - ./docker/postgres/pg_hba.conf:/etc/postgresql/pg_hba.conf
+      - odoo-db-data:/var/lib/postgresql/data
+    command: |
+      postgres
+      -c 'config_file=/etc/postgresql/postgresql.conf'
+      -c 'hba_file=/etc/postgresql/pg_hba.conf'
+    logging:
+      driver: json-file
+      options:
+        tag: "{{.Name}}"
+
+volumes:
+  odoo-web-data:
+  odoo-db-data:
